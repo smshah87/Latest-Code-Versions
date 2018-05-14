@@ -35,17 +35,15 @@ for num = 1:length(hybnums)
     
     if length(channels) > 1
         hordor = [];
+
         for i = 1:length(channels)
-            if length(channels) <4 && i == length(channels)
-                chnum = 4;
-            else
-                chnum = i;
-            end
-            temp = ['c' num2str(chnum) '=' namesh{channels(i)}];
+            temp = ['image' num2str(i) '=C'  num2str(channels(i)) '-' FileName];
             hordor = [hordor ' ' temp];
         end
 
-        MIJ.run('Merge Channels...', hordor);   
+        str = ['title=[Concatenated Stacks] ' hordor];
+        MIJ.run('Concatenate...', str);
+        MIJ.run('Stack to Hyperstack...', ['order=xyzct channels=' num2str(length(channels)) ' slices=' num2str(size(color{channels(1)},3)) ' frames=1 display=Grayscale']);
     end
 
     MIJ.run('Subtract Background...', 'rolling=3 stack');
@@ -55,7 +53,7 @@ for num = 1:length(hybnums)
     end
     
     for dum = 1:length(channels)
-        name = ['C' num2str(dum) '-' num2str(num) '.tif'];
+        name = ['C' num2str(dum) '-Concatenated Stacks'];
         color{channels(dum)} = uint16(MIJ.getImage(name));
     end
 

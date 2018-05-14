@@ -1,4 +1,4 @@
-function [color, m,dots,BWfull,thresholds, copy, celldata, corr_offset] = findDotsHCRvIntron2(PathName, channels, multiplier, HCRorFISH,BWfull,zmask,corrections,registration,regvec, debug)%,tform3,tform4)
+function [color, m,dots,BWfull,thresholds, copy, celldata, corr_offset] = findDotsHCRvIntron2(PathName, channels, multiplier, HCRorFISH,BWfull,zmask,corrections,registration, debug)%,tform3,tform4)
 %load('tforms.mat');
 %addpath('/Applications/Fiji.app/scripts');
 fld = pwd;
@@ -58,17 +58,15 @@ for d = 1:length(channels)
 end
 if length(channels) > 1
     hordor = [];
+
     for i = 1:length(channels)
-        if length(channels) <4 && i == length(channels)
-           chnum = 4;
-        else
-           chnum = i;
-        end
-        temp = ['c' num2str(chnum) '=' namesh{channels(i)}];
+        temp = ['image' num2str(i) '=C'  num2str(channels(i)) '-' FileName];
         hordor = [hordor ' ' temp];
     end
 
-    MIJ.run('Merge Channels...', hordor); %c4=C4-' FileName '.tif c5=C5-' FileName '.tif']);    
+    str = ['title=[Concatenated Stacks] ' hordor];
+    MIJ.run('Concatenate...', str);
+    MIJ.run('Stack to Hyperstack...', ['order=xyzct channels=' num2str(length(channels)) ' slices=' num2str(size(color{channels(1)},3)) ' frames=1 display=Grayscale']);
 end
 
 MIJ.run('Subtract Background...', 'rolling=3 stack');
@@ -78,7 +76,7 @@ if length(channels) > 1
 end
 
 for dum = 1:length(channels)
-    name = ['C' num2str(channels(dum)) '-' FileName];
+    name = ['C' num2str(channels(dum)) '-Concatenated Stacks'];
     color{channels(dum)} = imtranslate(uint16(MIJ.getImage(name)),corr_offset);
 end
 
@@ -197,7 +195,7 @@ for dee = 1:length(channels)
         msk = true(3,3,3);
         msk(2,2,2) = false;
         %# assign, to every voxel, the maximum of its neighbors
-        apply = logFish < multiplier;
+        apply = logFish < multiplier(dee);
         %thresh = thresh(th);
         logFish(apply) = 0;
         s_dil = imdilate(logFish,msk);
@@ -230,7 +228,7 @@ if strcmp(segmentation, 'roi')
     vertex = selfseg([PathName '/RoiSet']);
     for i = 1:length(vertex)
             for k = 1:length(channels)
-                include = inpolygon(dots(k).channels(:,1),dots(k).channels(:,2),vertex(i).x+regvec(1),vertex(i).y+regvec(2));
+                include = inpolygon(dots(k).channels(:,1),dots(k).channels(:,2),vertex(i).x,vertex(i).y);
                 copy(k,i) = sum(include);
                 celldata.Positions{k,i} = dots(k).channels(include,:);
                 if isfield(dots,'intensity')
