@@ -1,6 +1,6 @@
 function FindDots(PathName,posnum, hybs, channels, multiplier, HCRorFISH,BWfull,zmask, debug)
 
-load([PathName '\Pos' num2str(posnum) '\Pos' num2str(posnum) 'SequentialHybsNewRegis.mat']);
+load([PathName '\Pos' num2str(posnum) '\Pos' num2str(posnum) 'SequentialRegistered.mat']);
 z = 1;
 for num = 1:hybs
     

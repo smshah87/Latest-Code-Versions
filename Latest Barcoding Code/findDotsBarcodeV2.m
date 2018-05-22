@@ -119,13 +119,13 @@ for dee = 1:length(images)
     if debug == 1
         asdf = 1:2:length(multiplier)*2;
         figure 
-        imshow(max(images{dee},[],3),[min(min(max(images{dee},[],3))) mean(mean(max(images{dee},[],3)))+1000]);
+        imshow(max(images{dee},[],3),[min(min(max(images{dee},[],3))) multiplier(dee)+1000]);
         hold on;
         [v2,v1]=find(max(m{dee},[],3)==1);
         scatter(v1(:),v2(:),75);
         hold off;
         figure;
-        imshow(max(images{dee},[],3),[min(min(max(images{dee},[],3))) mean(mean(max(images{dee},[],3)))+1000]);
+        imshow(max(images{dee},[],3),[min(min(max(images{dee},[],3))) multiplier(dee)+1000]);
         %txt_h = labelpoints(v1+.05, v2+.05, ind2sub(size(v1),v1), 'NE',.01 ,'Color','y');
         LinkFigures(asdf(dee):asdf(dee)+1)
     end
